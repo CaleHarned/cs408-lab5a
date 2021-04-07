@@ -6,16 +6,19 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import android.widget.LinearLayout;
 
 
 public class MainActivity extends AppCompatActivity {
 
-    private TextView output;
+    private RecyclerView output;
     private EditText memoAdd;
     private EditText memoDelete;
-    private Button buttonMemoAdd;
-    private Button buttonMemoDelete;
+    private DatabaseHandler db;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,32 +26,37 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        output = (TextView) findViewById(R.id.output);
-        memoAdd = (EditText) findViewById(R.id.textMemoAdd);
-        memoDelete = (EditText) findViewById(R.id.textMemoDelete);
-        buttonMemoAdd = (Button) findViewById(R.id.buttonMemoAdd);
-        buttonMemoDelete = (Button) findViewById(R.id.buttonMemoDelete);
+        output = (RecyclerView) findViewById(R.id.output);
+        db= new DatabaseHandler(this,null,null,1);
+        updateRecyclerView();
 
-        DatabaseHandler db = new DatabaseHandler(this,null,null,1);
-        output.setText(db.getAllMemos());
+
+
+
 
 
     }
 
     public void addMemo(View v){
-        DatabaseHandler db = new DatabaseHandler(this,null,null,1);
+        memoAdd = (EditText) findViewById(R.id.textMemoAdd);
         String memo = memoAdd.getText().toString();
         db.addMemo(memo);
-
-        output.setText(db.getAllMemos());
+        updateRecyclerView();
 
     }
     public void deleteMemo(View v){
+        memoDelete = (EditText) findViewById(R.id.textMemoDelete);
         DatabaseHandler db = new DatabaseHandler(this,null,null,1);
         int memoNum = Integer.parseInt(memoDelete.getText().toString());
         db.deleteMemo(memoNum);
+        updateRecyclerView();;
+    }
+    private void updateRecyclerView(){
+        RecyclerViewAdapter adapter = new RecyclerViewAdapter(db.returnAllMemosList());
+        output.setHasFixedSize(true);
+        output.setLayoutManager(new LinearLayoutManager(this));
+        output.setAdapter(adapter);
 
-        output.setText(db.getAllMemos());
     }
 
 }
